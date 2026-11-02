@@ -1,0 +1,2043 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Núcleo CRM - Plataforma Integral de Seguros y Cobranza</title>
+    <!-- FontAwesome para Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Fuentes Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="dashboard-body">
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- BARRA LATERAL (SIDEBAR) -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Encabezado de la barra lateral -->
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="assets/logo.png" alt="Núcleo CRM" class="brand-logo-img">
+            </div>
+
+            <div class="collapsed-logo-text">
+                <img src="assets/logo.png" alt="Núcleo CRM" style="height: 28px; width: 28px; border-radius: 6px;">
+            </div>
+
+            <button class="sidebar-toggle-btn" id="sidebarToggle" onclick="toggleSidebar()" title="Contraer/Expandir">
+                <i class="fa-solid fa-bars icon-bars"></i>
+                <i class="fa-solid fa-xmark icon-close"></i>
+            </button>
+        </div>
+
+        <!-- Contenido Interno -->
+        <div class="sidebar-content">
+            <!-- Navegación Principal -->
+            <div class="sidebar-section-title">GENERAL</div>
+            <nav class="sidebar-nav">
+                <a href="javascript:void(0)" class="nav-item active" id="nav-dashboard"
+                    onclick="switchView('dashboard')" title="Dashboard Ejecutivo">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-section-title">CARTERA</div>
+            <nav class="sidebar-nav">
+                <a href="javascript:void(0)" class="nav-item" id="nav-polizas" onclick="switchView('polizas')"
+                    title="Pólizas">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="nav-text">Pólizas</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-cobranza" onclick="switchView('cobranza')"
+                    title="Cobranza y Pagos">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                    <span class="nav-text">Cobranza</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-clientes" onclick="switchView('clientes')"
+                    title="Clientes">
+                    <i class="fa-solid fa-users"></i>
+                    <span class="nav-text">Clientes</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-section-title">ORGANIZACIÓN</div>
+            <nav class="sidebar-nav">
+                <a href="javascript:void(0)" class="nav-item" id="nav-calendario" onclick="switchView('calendario')"
+                    title="Calendario y Tareas">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span class="nav-text">Calendario</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-documentos" onclick="switchView('documentos')"
+                    title="Expediente Digital">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span class="nav-text">Documentos</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-settings" onclick="switchView('settings')"
+                    title="Equipo y Colaboradores">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span class="nav-text">Equipo</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- CONTENEDOR DERECHO -->
+    <div class="page-container">
+        <!-- Header superior minimalista -->
+        <header class="top-header">
+            <div class="top-header-left">
+                <button class="sidebar-toggle-btn d-md-none" onclick="toggleMobileSidebar()" style="display: none;"
+                    id="mobileToggle">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="breadcrumb-title" id="breadcrumb-title">
+                    Dashboard
+                </div>
+                <div class="header-search">
+                    <input type="text" id="sidebar-global-search" placeholder="Buscar póliza, cliente o recibo..."
+                        oninput="handleGlobalSearch(this.value)">
+                </div>
+            </div>
+
+            <div class="user-nav">
+                <button class="btn-header-new" onclick="openModalNuevaPoliza()">+ Nueva Póliza</button>
+
+                <div class="user-badge">
+                    <div class="user-avatar" id="user-avatar-char">U</div>
+                    <span class="user-name" id="user-display-name">Usuario</span>
+                </div>
+                <a href="javascript:void(0)" onclick="logoutUser()" class="btn-logout" title="Cerrar Sesión">
+                    Salir
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace-main">
+
+            <!-- ============================================================ -->
+            <!-- 1. VISTA DASHBOARD -->
+            <!-- ============================================================ -->
+            <section id="view-dashboard" class="view-panel active">
+                <div class="workspace-title-bar">
+                    <h1 id="welcome-title">Dashboard</h1>
+                </div>
+
+                <!-- KPI Grid Principal -->
+                <!-- KPI Grid Principal Minimalista -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <span class="kpi-label">Cobranza Pendiente</span>
+                        <div class="kpi-value" id="kpi-pendiente-monto">$0.00</div>
+                        <div class="kpi-subtext" id="kpi-pendiente-cant">0 recibos por cobrar</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <span class="kpi-label">Cobranza Realizada</span>
+                        <div class="kpi-value" id="kpi-realizada-monto">$0.00</div>
+                        <div class="kpi-subtext" id="kpi-realizada-cant">0 recibos cobrados</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <span class="kpi-label">Cobranza Vencida</span>
+                        <div class="kpi-value kpi-val-alert" id="kpi-vencida-monto">$0.00</div>
+                        <div class="kpi-subtext" id="kpi-vencida-cant">0 recibos vencidos</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <span class="kpi-label">Eficiencia de Cobro</span>
+                        <div class="kpi-value" id="kpi-eficiencia">0%</div>
+                        <div class="kpi-subtext">Porcentaje de éxito</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <span class="kpi-label">Pólizas Activas</span>
+                        <div class="kpi-value" id="kpi-total-polizas">0</div>
+                        <div class="kpi-subtext" id="kpi-polizas-subtext">0 vigentes en cartera</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <span class="kpi-label">Clientes</span>
+                        <div class="kpi-value" id="kpi-total-clientes">0</div>
+                        <div class="kpi-subtext">Contratantes registrados</div>
+                    </div>
+                </div>
+
+                <!-- Recordatorios de Cobranza y Renovaciones -->
+                <div class="alerts-panel" id="panel-alertas-urgentes" style="display: none;">
+                    <div class="alerts-panel-header">
+                        <div>
+                            <h3>Recordatorios y Vencimientos</h3>
+                            <p class="alerts-subtext">Cobros (1 semana antes y día de pago) · Renovaciones (1 mes antes)</p>
+                        </div>
+                        <span class="alerts-counter-badge" id="alertas-contador">0 recordatorios</span>
+                    </div>
+                    <div class="urgent-items-list" id="lista-alertas-urgentes"></div>
+                </div>
+
+                <!-- Filtros del Dashboard Minimalistas -->
+                <div class="toolbar-card">
+                    <div class="toolbar-flex">
+                        <div class="filters-group">
+                            <div class="filter-item">
+                                <label>Agente / Productor</label>
+                                <select class="filter-select" id="filter-agente" onchange="handleFilterChange()">
+                                    <option value="todos">Todos los Agentes</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Aseguradora</label>
+                                <select class="filter-select" id="filter-aseguradora" onchange="handleFilterChange()">
+                                    <option value="todas">Todas las Aseguradoras</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Ramo</label>
+                                <select class="filter-select" id="filter-ramo" onchange="handleFilterChange()">
+                                    <option value="todos">Todos los Ramos</option>
+                                    <option value="Autos">Autos</option>
+                                    <option value="Gastos Médicos Mayores">Gastos Médicos Mayores</option>
+                                    <option value="Vida">Vida</option>
+                                    <option value="Daños">Daños</option>
+                                    <option value="Hogar">Hogar</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Período de Vencimiento</label>
+                                <select class="filter-select" id="filter-periodo" onchange="toggleCustomDateFields()">
+                                    <option value="todas">Cualquier Fecha</option>
+                                    <option value="hoy">Vence Hoy</option>
+                                    <option value="ultimos_7">Últimos 7 días</option>
+                                    <option value="esta_semana">Esta Semana</option>
+                                    <option value="este_mes">Este Mes</option>
+                                    <option value="personalizado">Rango Personalizado...</option>
+                                </select>
+                            </div>
+                            <div class="filter-item" id="date-range-inputs" style="display: none;">
+                                <label>Rango de Fechas</label>
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="date" id="filter-fecha-inicio" class="filter-select"
+                                        onchange="handleFilterChange()">
+                                    <input type="date" id="filter-fecha-fin" class="filter-select"
+                                        onchange="handleFilterChange()">
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn-clean" onclick="resetFilters()">
+                            Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Tablas del Dashboard -->
+                <div class="dashboard-grid-2col">
+                    <!-- Resumen por Ramo -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Resumen por Ramo</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>RAMO</th>
+                                        <th>RECIBOS</th>
+                                        <th>PENDIENTE ($)</th>
+                                        <th>COBRADO ($)</th>
+                                        <th>TOTAL ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ramo-metrics-body">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; padding: 2rem; color: #94a3b8;">
+                                            Cargando ramos...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Distribución Visual por Ramo -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Distribución de Monto por Ramo</h3>
+                        </div>
+                        <div class="card-body" id="ramo-bars-container"
+                            style="display: flex; flex-direction: column; gap: 15px; justify-content: center;">
+                            <!-- Barras generadas en JS -->
+                        </div>
+                    </div>
+
+                    <!-- Resumen por Aseguradora -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Resumen por Compañía Aseguradora</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>ASEGURADORA</th>
+                                        <th>RECIBOS</th>
+                                        <th>PENDIENTE ($)</th>
+                                        <th>COBRADO ($)</th>
+                                        <th>TOTAL ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="aseguradora-metrics-body">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; padding: 2rem; color: #94a3b8;">
+                                            Cargando aseguradoras...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Métricas por Agente / Productor -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Rendimiento por Agente / Productor</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>AGENTE</th>
+                                        <th>AGENCIA</th>
+                                        <th>RECIBOS</th>
+                                        <th>COBRADO ($)</th>
+                                        <th>TOTAL ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="agente-metrics-body">
+                                    <tr>
+                                        <td colspan="5" style="text-align:center; padding: 2rem; color: #94a3b8;">
+                                            Cargando agentes...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================ -->
+            <!-- 2. VISTA DE PÓLIZAS -->
+            <!-- ============================================================ -->
+            <section id="view-polizas" class="view-panel">
+                <div class="view-header-bar">
+                    <div class="title-group">
+                        <h2>Pólizas</h2>
+                    </div>
+                    <div class="header-action-buttons">
+                        <button class="btn-primary-action" onclick="openModalNuevaPoliza()">
+                            Nueva Póliza
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Búsqueda y Filtros de Pólizas -->
+                <div class="toolbar-card">
+                    <div class="toolbar-flex">
+                        <div class="filters-group" style="flex: 1;">
+                            <div class="filter-item" style="flex: 1; min-width: 220px;">
+                                <label>Buscar Póliza</label>
+                                <input type="text" id="polizas-search" class="form-control"
+                                    placeholder="No. Póliza, cliente o aseguradora..." oninput="filterPolizasTable()">
+                            </div>
+                            <div class="filter-item">
+                                <label>Estatus Póliza</label>
+                                <select class="filter-select" id="polizas-filter-estado"
+                                    onchange="filterPolizasTable()">
+                                    <option value="todos">Todos los Estados</option>
+                                    <option value="activa">Vigentes (Al Corriente)</option>
+                                    <option value="vencida">Vencidas (Con Adeudo / Expiradas)</option>
+                                    <option value="cancelada">Canceladas</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Ramo</label>
+                                <select class="filter-select" id="polizas-filter-ramo" onchange="filterPolizasTable()">
+                                    <option value="todos">Todos los Ramos</option>
+                                    <option value="Gastos Médicos Mayores">Gastos Médicos Mayores</option>
+                                    <option value="Vida">Vida</option>
+                                    <option value="Auto">Auto</option>
+                                    <option value="Daños">Daños</option>
+                                    <option value="Hogar">Hogar</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Aseguradora</label>
+                                <select class="filter-select" id="polizas-filter-aseguradora"
+                                    onchange="filterPolizasTable()">
+                                    <option value="todas">Todas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-clean" onclick="exportarPolizasCSV()" title="Descargar reporte en Excel">
+                            <span>Exportar Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Pólizas (Vista Limpia y Mínima) -->
+                <div class="content-card">
+                    <div class="card-body p-0">
+                        <table class="custom-table" id="tabla-polizas">
+                            <thead>
+                                <tr>
+                                    <th>PÓLIZA</th>
+                                    <th>CONTRATANTE</th>
+                                    <th>RAMO</th>
+                                    <th>ASEGURADORA</th>
+                                    <th>ESTATUS</th>
+                                    <th style="text-align: right;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="polizas-table-body">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 2.5rem; color: #94a3b8;">
+                                        Cargando pólizas...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================ -->
+            <!-- 3. VISTA DE COBRANZA Y PAGOS -->
+            <!-- ============================================================ -->
+            <section id="view-cobranza" class="view-panel">
+                <div class="view-header-bar">
+                    <div class="title-group">
+                        <h2>Cobranza</h2>
+                    </div>
+                </div>
+
+                <!-- KPIs Rápidos de Cobranza -->
+                <div class="kpi-grid" style="margin-bottom: 1rem;">
+                    <div class="kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">PENDIENTES DE PAGO</span>
+                            <div class="kpi-icon-box amber"><i class="fa-solid fa-clock"></i></div>
+                        </div>
+                        <div class="kpi-value" id="cobranza-kpi-pendiente">$0.00</div>
+                        <div class="kpi-subtext" id="cobranza-kpi-pendiente-sub">0 recibos</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">PAGOS REALIZADOS</span>
+                            <div class="kpi-icon-box emerald"><i class="fa-solid fa-circle-check"></i></div>
+                        </div>
+                        <div class="kpi-value" id="cobranza-kpi-realizada">$0.00</div>
+                        <div class="kpi-subtext" id="cobranza-kpi-realizada-sub">0 cobrados</div>
+                    </div>
+
+                    <div class="kpi-card">
+                        <div class="kpi-top">
+                            <span class="kpi-label">PAGOS VENCIDOS (URGENTE)</span>
+                            <div class="kpi-icon-box rose"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                        <div class="kpi-value" id="cobranza-kpi-vencida" style="color: #e11d48;">$0.00</div>
+                        <div class="kpi-subtext" id="cobranza-kpi-vencida-sub">0 en mora</div>
+                    </div>
+                </div>
+
+                <!-- Filtros y Búsqueda de Cobranza -->
+                <div class="toolbar-card">
+                    <div class="toolbar-flex">
+                        <div class="filters-group" style="flex: 1;">
+                            <div class="filter-item" style="flex: 1; min-width: 220px;">
+                                <label>Buscar Recibo o Cliente</label>
+                                <input type="text" id="cobranza-search" class="form-control"
+                                    placeholder="Buscar por cliente, póliza o recibo..." oninput="loadCobranzas()">
+                            </div>
+                            <div class="filter-item">
+                                <label>Estado del Recibo</label>
+                                <select class="filter-select" id="cobranza-filter-estado" onchange="loadCobranzas()">
+                                    <option value="todos">Todos los Estados</option>
+                                    <option value="pendiente">Pendientes</option>
+                                    <option value="vencida">Vencidos (En Mora)</option>
+                                    <option value="realizada">Realizados (Pagados)</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Período</label>
+                                <select class="filter-select" id="cobranza-filter-periodo" onchange="loadCobranzas()">
+                                    <option value="todos">Cualquier Fecha</option>
+                                    <option value="hoy">Vence Hoy</option>
+                                    <option value="esta_semana">Esta Semana</option>
+                                    <option value="este_mes">Este Mes</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-clean" onclick="exportarCobranzaCSV()" title="Descargar cobranza en Excel">
+                                <span>Exportar Excel</span>
+                            </button>
+                            <button class="btn-clean" onclick="resetCobranzaFilters()">
+                                <span>Limpiar</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Recibos de Cobranza -->
+                <div class="content-card">
+                    <div class="card-body p-0">
+                        <table class="custom-table" id="tabla-cobranzas">
+                            <thead>
+                                <tr>
+                                    <th>RECIBO</th>
+                                    <th>PÓLIZA / ASEGURADORA</th>
+                                    <th>CLIENTE (CONTRATANTE)</th>
+                                    <th>MONTO</th>
+                                    <th>VENCIMIENTO</th>
+                                    <th>PLAZO / DÍAS</th>
+                                    <th>ESTADO</th>
+                                    <th>FECHA Y MÉTODO DE PAGO</th>
+                                    <th>COMPROBANTE</th>
+                                    <th style="text-align: right;">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cobranzas-table-body">
+                                <tr>
+                                    <td colspan="10" style="text-align: center; padding: 2.5rem; color: #94a3b8;">
+                                        Cargando recibos de cobranza...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================ -->
+            <!-- 4. VISTA DE CLIENTES (CONTRATANTES) -->
+            <!-- ============================================================ -->
+            <section id="view-clientes" class="view-panel">
+                <div class="view-header-bar">
+                    <div class="title-group">
+                        <h2>Clientes</h2>
+                    </div>
+                    <div class="header-action-buttons">
+                        <button class="btn-primary-action" onclick="openModalNuevoCliente()">
+                            Nuevo Cliente
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Buscador de Clientes -->
+                <div class="toolbar-card">
+                    <div class="toolbar-flex">
+                        <div class="filters-group" style="flex: 1;">
+                            <div class="filter-item" style="flex: 1; min-width: 280px;">
+                                <label>Buscar Contratante</label>
+                                <input type="text" id="clientes-search" class="form-control"
+                                    placeholder="Buscar por nombre, RFC, teléfono, WhatsApp o email..."
+                                    oninput="loadClientes()">
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button class="btn-clean" onclick="exportarClientesCSV()" title="Descargar clientes en Excel">
+                                <span>Exportar Excel</span>
+                            </button>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: #475569;" id="clientes-counter">
+                                0 clientes registrados
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Tarjetas de Clientes -->
+                <div class="client-cards-grid" id="clientes-grid-container">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #94a3b8;">
+                        Cargando clientes...
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================ -->
+            <!-- 5. VISTA DE EXPEDIENTE DIGITAL / DOCUMENTOS -->
+            <!-- ============================================================ -->
+            <section id="view-documentos" class="view-panel">
+                <div class="view-header-bar">
+                    <div class="title-group">
+                        <h2>Documentos</h2>
+                    </div>
+                    <div class="header-action-buttons">
+                        <button class="btn-primary-action" onclick="openModalUploadDoc()">
+                            Subir Documento
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros de Documentos -->
+                <div class="toolbar-card">
+                    <div class="toolbar-flex">
+                        <div class="filters-group" style="flex: 1;">
+                            <div class="filter-item" style="flex: 1; min-width: 250px;">
+                                <label>Buscar Archivo</label>
+                                <input type="text" id="docs-search" class="form-control"
+                                    placeholder="Buscar por título, nombre de archivo o cliente..."
+                                    oninput="loadDocumentos()">
+                            </div>
+                            <div class="filter-item">
+                                <label>Tipo de Documento</label>
+                                <select class="filter-select" id="docs-filter-tipo" onchange="loadDocumentos()">
+                                    <option value="todos">Todos los Documentos</option>
+                                    <option value="poliza">Carátulas de Póliza</option>
+                                    <option value="identificacion">Identificación Oficial (INE/Pasaporte)</option>
+                                    <option value="csf">Constancia de Sit. Fiscal (CSF)</option>
+                                    <option value="comprobante_pago">Comprobantes de Pago</option>
+                                    <option value="comprobante_domicilio">Comprobantes de Domicilio</option>
+                                    <option value="otro">Otros Archivos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #475569;" id="docs-counter">
+                            0 archivos en expediente
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid de Documentos -->
+                <div class="docs-grid" id="documentos-grid-container">
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #94a3b8;">
+                        Cargando expediente digital...
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================ -->
+            <!-- 6. VISTA DE CALENDARIO, TAREAS Y RECORDATORIOS -->
+            <!-- ============================================================ -->
+            <section id="view-calendario" class="view-panel">
+                <div class="view-header-bar">
+                    <div class="title-group">
+                        <h2>Calendario</h2>
+                    </div>
+                    <div class="header-action-buttons">
+                        <button class="btn-primary-action" onclick="openModalNuevaTarea()">
+                            + Nueva Tarea
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Navegación y Filtros del Calendario -->
+                <div class="cal-controls-card">
+                    <div class="cal-controls-left">
+                        <button type="button" class="btn-cal-nav" onclick="prevCalendarMonth()" title="Mes anterior">&larr;</button>
+                        <h3 id="cal-current-month-label" class="cal-month-heading">Noviembre 2026</h3>
+                        <button type="button" class="btn-cal-nav" onclick="nextCalendarMonth()" title="Mes siguiente">&rarr;</button>
+                        <button type="button" class="btn-cal-today" onclick="goToCurrentCalendarMonth()">Hoy</button>
+                    </div>
+
+                    <div class="cal-controls-right">
+                        <!-- Filtro por Contratante -->
+                        <div class="cal-filter-wrap">
+                            <label for="cal-filter-cliente">Contratante:</label>
+                            <select id="cal-filter-cliente" class="filter-select" onchange="loadCalendarEvents()">
+                                <option value="todos">Todos los Contratantes</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro por Tipo de Evento -->
+                        <div class="cal-filter-wrap">
+                            <label for="cal-filter-tipo">Ver:</label>
+                            <select id="cal-filter-tipo" class="filter-select" onchange="filterCalendarDisplay()">
+                                <option value="todos">Todos los eventos</option>
+                                <option value="tareas">Solo Tareas</option>
+                                <option value="cobranza">Recordatorios de Pago</option>
+                                <option value="renovaciones">Renovaciones</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Leyenda de colores minimalista -->
+                <div class="cal-legend">
+                    <span class="legend-item"><span class="legend-dot dot-tarea"></span> Tarea</span>
+                    <span class="legend-item"><span class="legend-dot dot-aviso-7d"></span> Aviso de pago (1 semana)</span>
+                    <span class="legend-item"><span class="legend-dot dot-pago-hoy"></span> Día de pago</span>
+                    <span class="legend-item"><span class="legend-dot dot-renovacion"></span> Renovación (1 mes)</span>
+                </div>
+
+                <!-- Rejilla del Calendario Mensual -->
+                <div class="cal-calendar-wrapper">
+                    <div class="cal-weekdays-header">
+                        <div>Lun</div>
+                        <div>Mar</div>
+                        <div>Mié</div>
+                        <div>Jue</div>
+                        <div>Vie</div>
+                        <div>Sáb</div>
+                        <div>Dom</div>
+                    </div>
+                    <div class="cal-days-grid" id="cal-days-grid">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Detalle del día seleccionado -->
+                <div class="cal-day-details-panel" id="cal-day-details" style="display: none;">
+                    <div class="cal-day-details-header">
+                        <h4 id="cal-selected-day-title">Eventos del día</h4>
+                        <button type="button" class="btn-clean" onclick="closeCalendarDayDetails()">Cerrar</button>
+                    </div>
+                    <div class="cal-day-events-list" id="cal-day-events-list"></div>
+                </div>
+            </section>
+
+
+            <!-- ============================================================ -->
+            <!-- 7. VISTA DE EQUIPO Y COLABORADORES (SENCILLO) -->
+            <!-- ============================================================ -->
+            <section id="view-settings" class="view-panel">
+                <div class="view-header-bar">
+                    <div class="title-group">
+                        <h2>Equipo</h2>
+                    </div>
+                </div>
+
+                <!-- Sub-pestañas -->
+                <div class="settings-subtabs-nav">
+                    <button class="settings-subtab active" id="subtab-btn-contactos" onclick="switchSettingsSubtab('contactos')">
+                        Contactos de Apoyo
+                    </button>
+                    <button class="settings-subtab" id="subtab-btn-equipos" onclick="switchSettingsSubtab('equipos')">
+                        Mi Equipo
+                    </button>
+                    <button class="settings-subtab" id="subtab-btn-empresa" onclick="switchSettingsSubtab('empresa')">
+                        Datos de Empresa
+                    </button>
+                </div>
+
+                <!-- PANEL 0: CONTACTOS DE APOYO (LISTA DE CONTACTOS) -->
+                <div class="settings-tab-panel active" id="panel-settings-contactos">
+                    <div class="toolbar-card">
+                        <div class="toolbar-flex">
+                            <div class="filters-group" style="flex: 1;">
+                                <div class="filter-item" style="flex: 1; min-width: 240px;">
+                                    <label>Buscar contacto</label>
+                                    <input type="text" id="contactos-search" class="form-control"
+                                        placeholder="Nombre, correo, teléfono, aseguradora o área..."
+                                        oninput="filterContactosTable()">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Aseguradora</label>
+                                    <select class="filter-select" id="contactos-filter-aseguradora" onchange="filterContactosTable()">
+                                        <option value="todas">Todas</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Área</label>
+                                    <select class="filter-select" id="contactos-filter-area" onchange="filterContactosTable()">
+                                        <option value="todas">Todas</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span style="font-size: 0.85rem; font-weight: 600; color: #475569;" id="contactos-counter">0 contactos</span>
+                                <button class="btn-primary-action" onclick="openModalContacto()">+ Agregar Contacto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-card" style="margin-bottom: 2rem;">
+                        <div class="card-body p-0">
+                            <table class="custom-table" id="tabla-contactos">
+                                <thead>
+                                    <tr>
+                                        <th>NOMBRE</th>
+                                        <th>CORREO</th>
+                                        <th>TELÉFONO</th>
+                                        <th>ASEGURADORA</th>
+                                        <th>ÁREA</th>
+                                        <th>NOTAS</th>
+                                        <th style="text-align: right;">ACCIONES</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contactos-table-body">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 2.5rem; color: #94a3b8;">Cargando contactos...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 1: MI EQUIPO (ÁREAS Y COLABORADORES INVITADOS) -->
+                <div class="settings-tab-panel" id="panel-settings-equipos">
+                    <!-- KPIs Rápidos de Equipos -->
+                    <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+                        <div class="kpi-card">
+                            <span class="kpi-label">EQUIPOS ACTIVOS</span>
+                            <div class="kpi-value" id="kpi-eq-total-equipos">0</div>
+                            <div class="kpi-subtext">Departamentos operativos</div>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label">TOTAL COLABORADORES</span>
+                            <div class="kpi-value" id="kpi-eq-total-miembros">0</div>
+                            <div class="kpi-subtext">Asesores y administradores</div>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label">INVITACIONES PENDIENTES</span>
+                            <div class="kpi-value" id="kpi-eq-invitaciones" style="color: #f59e0b;">0</div>
+                            <div class="kpi-subtext">Por activar acceso</div>
+                        </div>
+                        <div class="kpi-card">
+                            <span class="kpi-label">CARTERA COMPARTIDA</span>
+                            <div class="kpi-value" id="kpi-eq-cartera" style="color: #059669; font-size: 1.3rem;">Activa</div>
+                            <div class="kpi-subtext">Colaboración centralizada</div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Áreas del Equipo -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">
+                            Áreas de Trabajo
+                        </h3>
+                        <button class="btn-clean" onclick="openModalNuevoEquipo()" style="font-size: 0.825rem;">
+                            + Agregar Área
+                        </button>
+                    </div>
+
+                    <div class="equipos-cards-grid" id="equipos-grid-container" style="margin-bottom: 2rem;">
+                        <!-- Poblado en JS -->
+                    </div>
+
+                    <!-- Sección: Directorio de Colaboradores -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0;">
+                            Mi Equipo (quién está en cada área)
+                        </h3>
+                        <button class="btn-primary-action" onclick="openModalInvitarColaborador()" style="font-size: 0.825rem; padding: 0.5rem 1rem;">
+                            + Invitar a mi Equipo
+                        </button>
+                    </div>
+
+                    <!-- Barra de Búsqueda y Filtros de Miembros -->
+                    <div class="toolbar-card">
+                        <div class="toolbar-flex">
+                            <div class="filters-group" style="flex: 1;">
+                                <div class="filter-item" style="flex: 1; min-width: 240px;">
+                                    <label>Buscar Colaborador</label>
+                                    <input type="text" id="miembros-search" class="form-control"
+                                        placeholder="Nombre, correo o teléfono..."
+                                        oninput="filterMiembrosTable()">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Equipo / Área</label>
+                                    <select class="filter-select" id="miembros-filter-equipo" onchange="filterMiembrosTable()">
+                                        <option value="todos">Todos los Equipos</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Rol</label>
+                                    <select class="filter-select" id="miembros-filter-rol" onchange="filterMiembrosTable()">
+                                        <option value="todos">Todos los Roles</option>
+                                        <option value="admin">Administradores</option>
+                                        <option value="agente">Asesores / Agentes</option>
+                                        <option value="auditor">Auditores</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.85rem; font-weight: 600; color: #475569;" id="miembros-counter">
+                                0 colaboradores registrados
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Colaboradores -->
+                    <div class="content-card" style="margin-bottom: 2rem;">
+                        <div class="card-body p-0">
+                            <table class="custom-table" id="tabla-miembros">
+                                <thead>
+                                    <tr>
+                                        <th>COLABORADOR</th>
+                                        <th>EQUIPO / ÁREA</th>
+                                        <th>CORREO ELECTRÓNICO</th>
+                                        <th>TELÉFONO</th>
+                                        <th>ROL</th>
+                                        <th>ESTADO</th>
+                                        <th style="text-align: right;">ACCIONES</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="miembros-table-body">
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 2.5rem; color: #94a3b8;">
+                                            Cargando colaboradores...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL 2: DATOS DE EMPRESA & CRM -->
+                <div class="settings-tab-panel" id="panel-settings-empresa">
+                    <div class="content-card" style="max-width: 860px; margin: 0 auto;">
+                        <div class="card-header">
+                            <h3>Datos de la Empresa & CRM</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-empresa-settings" onsubmit="handleSaveEmpresaSettings(event)">
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="empresa-company">Nombre de la Empresa / Correduría <span class="req">*</span></label>
+                                        <input type="text" id="empresa-company" name="company" class="form-control"
+                                            placeholder="Ej. Núcleo Seguros México" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="empresa-fullname">Titular / Administrador <span class="req">*</span></label>
+                                        <input type="text" id="empresa-fullname" name="fullname" class="form-control"
+                                            placeholder="Ej. Marcelo Ramon" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="empresa-email">Correo Electrónico <span class="req">*</span></label>
+                                        <input type="email" id="empresa-email" name="email" class="form-control"
+                                            placeholder="contacto@empresa.com" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="empresa-rfc">RFC</label>
+                                        <input type="text" id="empresa-rfc" name="rfc" class="form-control"
+                                            placeholder="RFC con homoclave" style="text-transform: uppercase;">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid-2">
+                                    <div class="form-group">
+                                        <label for="empresa-telefono">Teléfono</label>
+                                        <input type="tel" id="empresa-telefono" name="telefono" class="form-control"
+                                            placeholder="55 1234 5678">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="empresa-moneda">Moneda Predeterminada</label>
+                                        <select id="empresa-moneda" name="moneda" class="form-control">
+                                            <option value="MXN">Pesos Mexicanos (MXN)</option>
+                                            <option value="USD">Dólares (USD)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem;">
+                                    <button type="submit" class="btn-primary-action" id="btn-save-empresa">
+                                        Guardar Datos
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL 1: REGISTRAR / EDITAR PÓLIZA COMPLETA -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-poliza">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3 id="modal-poliza-title">Registrar Nueva Póliza</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-poliza')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-poliza" onsubmit="handleSavePoliza(event)">
+                <input type="hidden" id="poliza-id" name="id" value="">
+                <div class="modal-body">
+                    <!-- Fila 1: Cliente y Agente -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="poliza-cliente-id">Cliente (Contratante) <span class="req">*</span></label>
+                            <div style="display: flex; gap: 6px;">
+                                <select id="poliza-cliente-id" name="cliente_id" class="form-control" required
+                                    style="flex: 1;">
+                                    <option value="">-- Selecciona el contratante --</option>
+                                </select>
+                                <button type="button" class="btn-action btn-wsp" onclick="openModalNuevoCliente(true)"
+                                    title="Crear Cliente Rápido"><i class="fa-solid fa-user-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="poliza-agente-id">Agente Asignado <span class="req">*</span></label>
+                            <select id="poliza-agente-id" name="usuario_id" class="form-control" required>
+                                <option value="">-- Selecciona el agente --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: No. Póliza, Aseguradora y Ramo -->
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label for="poliza-numero">Número de Póliza <span class="req">*</span></label>
+                            <input type="text" id="poliza-numero" name="numero_poliza" class="form-control"
+                                placeholder="Ej. POL-GNP-98214" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="poliza-aseguradora">Aseguradora <span class="req">*</span></label>
+                            <input type="text" id="poliza-aseguradora" name="aseguradora" class="form-control"
+                                list="listado-aseguradoras" placeholder="Ej. GNP, AXA, Qualitas..." required>
+                            <datalist id="listado-aseguradoras">
+                                <option value="GNP Seguros"></option>
+                                <option value="AXA Seguros"></option>
+                                <option value="Quálitas"></option>
+                                <option value="Mapfre"></option>
+                                <option value="MetLife"></option>
+                                <option value="Monterrey New York Life"></option>
+                                <option value="Zurich"></option>
+                                <option value="Chubb"></option>
+                                <option value="Banorte Seguros"></option>
+                                <option value="HDI Seguros"></option>
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="poliza-ramo">Tipo de Póliza / Ramo <span class="req">*</span></label>
+                            <select id="poliza-ramo" name="ramo" class="form-control" required>
+                                <option value="">-- Selecciona Ramo --</option>
+                                <option value="Gastos Médicos Mayores">Gastos Médicos Mayores</option>
+                                <option value="Vida">Vida</option>
+                                <option value="Auto">Auto</option>
+                                <option value="Daños">Daños</option>
+                                <option value="Hogar">Hogar</option>
+                                <option value="Responsabilidad Civil">Responsabilidad Civil</option>
+                                <option value="Accidentes Personales">Accidentes Personales</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Vigencias -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="poliza-vigencia-desde">Fecha Inicio de Vigencia <span
+                                    class="req">*</span></label>
+                            <input type="date" id="poliza-vigencia-desde" name="vigencia_desde" class="form-control"
+                                required onchange="autoCalculateVigenciaFin()">
+                        </div>
+                        <div class="form-group">
+                            <label for="poliza-vigencia-hasta">Fecha Fin de Vigencia <span class="req">*</span></label>
+                            <input type="date" id="poliza-vigencia-hasta" name="vigencia_hasta" class="form-control"
+                                required>
+                        </div>
+                    </div>
+
+                    <!-- Fila 4: Forma de Pago y Periodicidad -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="poliza-forma-pago">Tipo / Forma de Pago <span class="req">*</span></label>
+                            <select id="poliza-forma-pago" name="forma_pago" class="form-control" required>
+                                <option value="Transferencia SPEI">Transferencia SPEI</option>
+                                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                <option value="Domiciliación Bancaria">Domiciliación Bancaria</option>
+                                <option value="Efectivo / Sucursal">Efectivo / Sucursal</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="poliza-periodicidad">Periodicidad de Pago <span class="req">*</span></label>
+                            <select id="poliza-periodicidad" name="periodicidad" class="form-control" required
+                                onchange="calculateCuotasPreview()">
+                                <option value="Anual">Anual (1 solo pago)</option>
+                                <option value="Semestral">Semestral (2 pagos cada 6 meses)</option>
+                                <option value="Trimestral">Trimestral (4 pagos cada 3 meses)</option>
+                                <option value="Mensual">Mensual (12 pagos cada mes)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Desglose Financiero de la Póliza (Calculadora) -->
+                    <div class="calc-breakdown-box">
+                        <h4>Desglose de Costo y Primas</h4>
+                        <div class="form-grid-3">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="poliza-prima-neta">Prima Neta ($)</label>
+                                <input type="number" step="0.01" id="poliza-prima-neta" name="prima_neta"
+                                    class="form-control" placeholder="0.00" oninput="calculateTotalPremium()">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="poliza-recargo">Recargo Fraccionado ($)</label>
+                                <input type="number" step="0.01" id="poliza-recargo" name="recargo_fraccionado"
+                                    class="form-control" placeholder="0.00" oninput="calculateTotalPremium()">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="poliza-derecho">Derecho de Póliza ($)</label>
+                                <input type="number" step="0.01" id="poliza-derecho" name="derecho_poliza"
+                                    class="form-control" placeholder="0.00" oninput="calculateTotalPremium()">
+                            </div>
+                        </div>
+                        <div class="form-grid-2" style="margin-top: 10px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label for="poliza-iva">IVA ($)</label>
+                                    <button type="button" class="btn-clean" style="padding: 1px 6px; font-size: 0.7rem;"
+                                        onclick="autoComputeIVA()">Calcular 16%</button>
+                                </div>
+                                <input type="number" step="0.01" id="poliza-iva" name="iva" class="form-control"
+                                    placeholder="0.00" oninput="calculateTotalPremium()">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="poliza-moneda">Moneda</label>
+                                <select id="poliza-moneda" name="moneda" class="form-control">
+                                    <option value="MXN">Pesos Mexicanos (MXN)</option>
+                                    <option value="USD">Dólares (USD)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Banner de Prima Total Calculada -->
+                        <div class="total-premium-banner">
+                            <div>
+                                <div class="banner-label">Prima Total a Pagar</div>
+                                <div style="font-size: 0.75rem; opacity: 0.85;" id="preview-cuotas-text">1 pago de $0.00
+                                </div>
+                            </div>
+                            <div class="banner-val" id="poliza-total-display">$0.00</div>
+                            <input type="hidden" id="poliza-prima-total" name="prima_total" value="0.00">
+                        </div>
+                    </div>
+
+                    <!-- Archivo de Carátula de Póliza -->
+                    <div class="form-group">
+                        <label>Subir Carátula de Póliza (PDF o Imagen)</label>
+                        <div class="file-upload-box">
+                            <input type="file" id="poliza-archivo" name="archivo_poliza" accept=".pdf,image/*"
+                                onchange="displaySelectedFileName(this, 'poliza-file-name')">
+                            <p class="title" id="poliza-file-name">Haz clic o arrastra aquí la carátula de póliza</p>
+                            <p class="sub">Formatos admitidos: PDF, JPG, PNG (Máx 15MB)</p>
+                        </div>
+                    </div>
+
+                    <!-- Descripción o Notas -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="poliza-descripcion">Descripción de Coberturas / Observaciones</label>
+                        <textarea id="poliza-descripcion" name="descripcion_cobertura" class="form-control"
+                            placeholder="Detalles de suma asegurada, deducibles, coaseguros, beneficiarios..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="closeModal('modal-poliza')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-save-poliza">
+                        Guardar Póliza y Generar Recibos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL 2: REGISTRAR / EDITAR CLIENTE (CONTRATANTE) -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-cliente">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modal-cliente-title">Registrar Cliente (Contratante)</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-cliente')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-cliente" onsubmit="handleSaveCliente(event)">
+                <input type="hidden" id="cliente-id" name="id" value="">
+                <div class="modal-body">
+                    <!-- Fila 1: Tipo de Persona y Nombre -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="cliente-tipo-persona">Tipo de Persona <span class="req">*</span></label>
+                            <select id="cliente-tipo-persona" name="tipo_persona" class="form-control" required>
+                                <option value="fisica">Persona Física</option>
+                                <option value="moral">Persona Moral (Empresa)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="cliente-nombre">Nombre Completo / Razón Social <span
+                                    class="req">*</span></label>
+                            <input type="text" id="cliente-nombre" name="nombre" class="form-control"
+                                placeholder="Ej. Carlos Mendoza López" required>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: WhatsApp y Teléfono -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="cliente-whatsapp">WhatsApp (Lada + 10 dígitos) <span class="req">*</span></label>
+                            <input type="tel" id="cliente-whatsapp" name="whatsapp" class="form-control"
+                                placeholder="Ej. 5512345678" required>
+                            <span style="font-size: 0.7rem; color: #64748b;">Se usará para enlace de 1 click con mensaje
+                                directo</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="cliente-telefono">Teléfono Fijo / Secundario</label>
+                            <input type="tel" id="cliente-telefono" name="telefono" class="form-control"
+                                placeholder="Ej. 5587654321">
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Email y RFC -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="cliente-email">Correo Electrónico</label>
+                            <input type="email" id="cliente-email" name="email" class="form-control"
+                                placeholder="ejemplo@correo.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="cliente-rfc">RFC / CURP</label>
+                            <input type="text" id="cliente-rfc" name="rfc" class="form-control"
+                                placeholder="RFC con homoclave" style="text-transform: uppercase;">
+                        </div>
+                    </div>
+
+                    <!-- Fila 4: Dirección -->
+                    <div class="form-group">
+                        <label for="cliente-direccion">Dirección / Domicilio Fiscal</label>
+                        <input type="text" id="cliente-direccion" name="direccion" class="form-control"
+                            placeholder="Calle, número, colonia, código postal, estado">
+                    </div>
+
+                    <!-- Fila 5: Carga de Documentos del Cliente (INE y CSF) -->
+                    <div class="form-grid-2" style="margin-top: 10px;">
+                        <div class="form-group">
+                            <label>Identificación Oficial (INE / Pasaporte)</label>
+                            <div class="file-upload-box" style="padding: 0.75rem;">
+                                <input type="file" name="archivo_ine" accept=".pdf,image/*"
+                                    onchange="displaySelectedFileName(this, 'cli-ine-name')">
+                                <p class="title" id="cli-ine-name" style="font-size: 0.75rem;">Adjuntar INE (PDF/Imagen)
+                                </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Constancia de Sit. Fiscal (CSF)</label>
+                            <div class="file-upload-box" style="padding: 0.75rem;">
+                                <input type="file" name="archivo_csf" accept=".pdf,image/*"
+                                    onchange="displaySelectedFileName(this, 'cli-csf-name')">
+                                <p class="title" id="cli-csf-name" style="font-size: 0.75rem;">Adjuntar CSF (PDF)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 6: Notas -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="cliente-notas">Notas / Comentarios sobre el cliente</label>
+                        <textarea id="cliente-notas" name="notas" class="form-control"
+                            placeholder="Preferencias de contacto, fechas importantes, etc."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="closeModal('modal-cliente')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-save-cliente">
+                        Guardar Cliente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL 3: REGISTRAR PAGO DE RECIBO A 1 CLICK -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-marcar-pago">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Registrar Pago de Recibo</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-marcar-pago')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-marcar-pago" onsubmit="handleConfirmarPago(event)">
+                <input type="hidden" id="pago-recibo-id" name="recibo_id" value="">
+                <div class="modal-body">
+                    <!-- Resumen del Recibo -->
+                    <div
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">RECIBO A PAGAR:</span>
+                            <span id="pago-recibo-num" class="badge-status badge-pendiente">Recibo #--</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <div style="font-weight: 700; color: #0f172a; font-size: 1rem;" id="pago-cliente-nombre">
+                                Cliente...</div>
+                            <div style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: #059669;"
+                                id="pago-monto-display">$0.00</div>
+                        </div>
+                        <div style="font-size: 0.775rem; color: #64748b; margin-top: 4px;" id="pago-poliza-info">Póliza:
+                            --</div>
+                    </div>
+
+                    <!-- Fila: Fecha y Método de Pago -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="pago-fecha">Fecha de Pago <span class="req">*</span></label>
+                            <input type="date" id="pago-fecha" name="fecha_pago" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pago-metodo">Método de Pago <span class="req">*</span></label>
+                            <select id="pago-metodo" name="metodo_pago" class="form-control" required>
+                                <option value="Transferencia SPEI">Transferencia SPEI</option>
+                                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                <option value="Domiciliación">Domiciliación</option>
+                                <option value="Efectivo / Ventanilla">Efectivo / Ventanilla</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Referencia / Folio -->
+                    <div class="form-group">
+                        <label for="pago-referencia">Folio / Clave de Rastreo / Autorización</label>
+                        <input type="text" id="pago-referencia" name="referencia_pago" class="form-control"
+                            placeholder="Ej. AUT-894721 o Clave SPEI">
+                    </div>
+
+                    <!-- Subida de Comprobante de Pago -->
+                    <div class="form-group">
+                        <label>Subir Comprobante de Pago (Voucher / SPEI)</label>
+                        <div class="file-upload-box" style="padding: 1rem;">
+                            <input type="file" id="pago-comprobante" name="comprobante_archivo" accept=".pdf,image/*"
+                                onchange="displaySelectedFileName(this, 'pago-comp-name')">
+                            <p class="title" id="pago-comp-name" style="font-size: 0.8rem;">Adjuntar Comprobante (PDF o
+                                Imagen)</p>
+                            <p class="sub">Se vinculará de inmediato a la póliza y al expediente</p>
+                        </div>
+                    </div>
+
+                    <!-- Notas -->
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="pago-notas">Notas u Observaciones del Pago</label>
+                        <textarea id="pago-notas" name="notas" class="form-control"
+                            placeholder="Comentarios adicionales..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="closeModal('modal-marcar-pago')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" style="background-color: #059669;"
+                        id="btn-confirm-pago">
+                        Confirmar Pago y Poner Vigente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL 4: SUBIR DOCUMENTO AL EXPEDIENTE -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-upload-doc">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Subir Archivo al Expediente Digital</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-upload-doc')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-upload-doc" onsubmit="handleUploadDocumento(event)">
+                <div class="modal-body">
+                    <!-- Fila 1: Cliente y Póliza -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="upload-cliente-id">Cliente Vinculado</label>
+                            <select id="upload-cliente-id" name="cliente_id" class="form-control"
+                                onchange="populatePolizasPorCliente(this.value, 'upload-poliza-id')">
+                                <option value="">-- Sin vincular a cliente específico --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="upload-poliza-id">Póliza Vinculada</label>
+                            <select id="upload-poliza-id" name="poliza_id" class="form-control">
+                                <option value="">-- Sin vincular a póliza específica --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Tipo de Documento y Título -->
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="upload-tipo-doc">Tipo de Documento <span class="req">*</span></label>
+                            <select id="upload-tipo-doc" name="tipo_documento" class="form-control" required>
+                                <option value="poliza">Carátula de Póliza</option>
+                                <option value="identificacion">Identificación Oficial (INE / Pasaporte)</option>
+                                <option value="csf">Constancia de Sit. Fiscal (CSF)</option>
+                                <option value="comprobante_domicilio">Comprobante de Domicilio</option>
+                                <option value="comprobante_pago">Comprobante de Pago</option>
+                                <option value="otro">Otro Documento</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="upload-titulo">Título Descriptivo <span class="req">*</span></label>
+                            <input type="text" id="upload-titulo" name="titulo" class="form-control"
+                                placeholder="Ej. INE 2026 - Juan Pérez" required>
+                        </div>
+                    </div>
+
+                    <!-- Área de Archivo -->
+                    <div class="form-group">
+                        <label>Selecciona el Archivo <span class="req">*</span></label>
+                        <div class="file-upload-box">
+                            <input type="file" id="upload-file-input" name="archivo" required
+                                onchange="handleFileSelectUpload(this)">
+                            <p class="title" id="upload-file-label">Selecciona o arrastra el archivo aquí</p>
+                            <p class="sub">PDF, PNG, JPG, Word, Excel (Hasta 20MB)</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="upload-notas">Notas</label>
+                        <textarea id="upload-notas" name="notas" class="form-control"
+                            placeholder="Observaciones sobre este archivo..."></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="closeModal('modal-upload-doc')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-do-upload">
+                        Subir Documento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL 5: DETALLE COMPLETO DE PÓLIZA Y SUS RECIBOS -->
+    <!-- ============================================================ -->
+    <!-- ============================================================ -->
+    <!-- MODAL: INFORMACIÓN DEL CLIENTE (PÓLIZAS Y ARCHIVOS) -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-detalle-cliente">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3>Información del Cliente</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-detalle-cliente')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="cliente-det-head">
+                    <div class="client-avatar" id="cdet-avatar">C</div>
+                    <div>
+                        <div class="cliente-det-name" id="cdet-nombre">--</div>
+                        <span class="badge-persona" id="cdet-tipo">--</span>
+                    </div>
+                </div>
+
+                <div class="cliente-det-grid" id="cdet-info"></div>
+
+                <div class="client-stats-bar" style="margin: 1rem 0;">
+                    <div class="client-stat"><div class="client-stat-value" id="cdet-stat-total">0</div><div class="client-stat-label">Pólizas</div></div>
+                    <div class="client-stat"><div class="client-stat-value" id="cdet-stat-vigentes" style="color: #16a34a;">0</div><div class="client-stat-label">Vigentes</div></div>
+                    <div class="client-stat"><div class="client-stat-value" id="cdet-stat-vencidas" style="color: #dc2626;">0</div><div class="client-stat-label">Vencidas</div></div>
+                    <div class="client-stat"><div class="client-stat-value" id="cdet-stat-docs">0</div><div class="client-stat-label">Archivos</div></div>
+                </div>
+
+                <div class="cliente-det-actions">
+                    <button type="button" class="btn-secondary-action" id="cdet-btn-polizas" onclick="toggleClienteSeccion('polizas')">Ver Pólizas</button>
+                    <button type="button" class="btn-secondary-action" id="cdet-btn-docs" onclick="toggleClienteSeccion('docs')">Ver Archivos</button>
+                </div>
+
+                <div class="cliente-det-section" id="cdet-sec-polizas" style="display: none;"></div>
+                <div class="cliente-det-section" id="cdet-sec-docs" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary-action" onclick="closeModal('modal-detalle-cliente')">Cerrar</button>
+                <button type="button" class="btn-secondary-action" id="cdet-btn-editar">Editar Cliente</button>
+                <button type="button" class="btn-primary-action" id="cdet-btn-nueva-poliza">+ Nueva Póliza</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-detalle-poliza">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-header">
+                <h3 id="detalle-poliza-title">Detalle de Póliza</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-detalle-poliza')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="detalle-poliza-content">
+                <!-- Se llena dinámicamente -->
+            </div>
+            <div class="modal-footer" id="detalle-poliza-footer">
+                <button type="button" class="btn-secondary-action"
+                    onclick="closeModal('modal-detalle-poliza')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+
+ 
+    <div class="modal-backdrop" id="modal-historico-pagos">
+        <div class="modal-dialog modal-lg" style="max-width: 1080px; overflow: hidden; border-radius: 10px;">
+
+            <div class="modal-historico-header">
+                <div class="modal-historico-title" id="historico-titulo-poliza">
+                    <span id="historico-poliza-encabezado">HISTÓRICO DE PAGOS DE LA POLIZA: --</span>
+                    <span class="badge-status badge-vigente" id="historico-badge-vigente">Vigente</span>
+                </div>
+                <button class="modal-historico-close" onclick="closeModal('modal-historico-pagos')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+
+  
+            <div class="historico-subheader-bar">
+                <div class="historico-stat-box">
+                    <span class="stat-title">CONTRATANTE</span>
+                    <span class="stat-val" id="historico-contratante">VALERIA PACHECO MENDOZA</span>
+                </div>
+                <div class="historico-stat-box">
+                    <span class="stat-title">PRIMA TOTAL</span>
+                    <span class="stat-val" id="historico-prima-total">$ 0.00 MXN</span>
+                    <span class="stat-sub" id="historico-pagos-resumen"
+                        style="color: #4ade80; font-weight: 700;">Pagado: $ 0.00</span>
+                </div>
+                <div class="historico-stat-box">
+                    <span class="stat-title">FRECUENCIA DE PAGO</span>
+                    <span class="stat-val" id="historico-frecuencia">Mensual</span>
+                    <span class="stat-sub" id="historico-conducto">Conducto: Tarjeta de crédito</span>
+                </div>
+                <div style="text-align: right;">
+                    <button type="button" class="btn-add-recibo" onclick="abrirModalReciboManual()">
+                        Recibo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Cuotas y Pagos idéntica al Screenshot -->
+            <div class="historico-table-wrapper">
+                <table class="historico-table">
+                    <thead>
+                        <tr>
+                            <th class="historico-th">Serie</th>
+                            <th class="historico-th">Inicio Vigencia</th>
+                            <th class="historico-th">F. Límite</th>
+                            <th class="historico-th">Fecha Real</th>
+                            <th class="historico-th">Monto a Pagar</th>
+                            <th class="historico-th">Método</th>
+                            <th class="historico-th">Archivo</th>
+                            <th class="historico-th">Comentarios</th>
+                            <th class="historico-th" style="text-align: right;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historico-pagos-tbody">
+                        <!-- Generado dinámicamente con clases historico-tr-pagado y historico-tr-vencido -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Barra Total Inferior -->
+            <div class="historico-total-bar">
+                <span style="font-size: 0.85rem; font-weight: 600; color: #94a3b8;"
+                    id="historico-resumen-inferior">Resumen de pagos de la póliza</span>
+                <span id="historico-total-monto-inferior" style="color: #ffffff; font-family: var(--font-heading);">$
+                    0.00 MXN</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL: RENOVAR PÓLIZA -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-renovar-poliza">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="renovar-modal-title">Renovar
+                    Póliza</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-renovar-poliza')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-renovar-poliza" onsubmit="handleConfirmarRenovacion(event)">
+                <input type="hidden" id="renovar-poliza-id" name="poliza_id" value="">
+                <div class="modal-body">
+                    <!-- Resumen de Póliza Anterior -->
+                    <div
+                        style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 0.775rem; color: #64748b; font-weight: 700; text-transform: uppercase;">
+                            Póliza Actual que se Renovará:</div>
+                        <div style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-top: 2px;"
+                            id="renovar-poliza-actual-info">--</div>
+                        <div style="font-size: 0.825rem; color: #334155; margin-top: 2px;" id="renovar-cliente-nombre">
+                            Cliente: --</div>
+                        <div style="font-size: 0.775rem; color: #64748b; margin-top: 2px;"
+                            id="renovar-vigencia-anterior">Vigencia previa: --</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="renovar-nuevo-numero">Número de Nueva Póliza (Renovación) <span
+                                class="req">*</span></label>
+                        <input type="text" id="renovar-nuevo-numero" name="numero_poliza" class="form-control" required
+                            placeholder="Ej. POL-GNP-2027-X">
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="renovar-vigencia-desde">Nueva Fecha Inicio de Vigencia <span
+                                    class="req">*</span></label>
+                            <input type="date" id="renovar-vigencia-desde" name="vigencia_desde" class="form-control"
+                                required onchange="autoCalculateRenovacionVigenciaFin()">
+                        </div>
+                        <div class="form-group">
+                            <label for="renovar-vigencia-hasta">Nueva Fecha Fin de Vigencia <span
+                                    class="req">*</span></label>
+                            <input type="date" id="renovar-vigencia-hasta" name="vigencia_hasta" class="form-control"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="renovar-forma-pago">Forma de Pago</label>
+                            <select id="renovar-forma-pago" name="forma_pago" class="form-control">
+                                <option value="Transferencia SPEI">Transferencia SPEI</option>
+                                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                <option value="Domiciliación Bancaria">Domiciliación Bancaria</option>
+                                <option value="Efectivo / Sucursal">Efectivo / Sucursal</option>
+                                <option value="Cheque">Cheque</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="renovar-periodicidad">Periodicidad de Pago</label>
+                            <select id="renovar-periodicidad" name="periodicidad" class="form-control">
+                                <option value="Anual">Anual (1 pago)</option>
+                                <option value="Semestral">Semestral (2 pagos)</option>
+                                <option value="Trimestral">Trimestral (4 pagos)</option>
+                                <option value="Mensual">Mensual (12 pagos)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="renovar-prima-total">Prima Total de la Renovación ($ MXN) <span
+                                class="req">*</span></label>
+                        <input type="number" step="0.01" id="renovar-prima-total" name="prima_total"
+                            class="form-control" required placeholder="0.00">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="renovar-notas">Observaciones de la Renovación</label>
+                        <textarea id="renovar-notas" name="descripcion_cobertura" class="form-control"
+                            placeholder="Ajustes de suma asegurada, condiciones o notas..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="closeModal('modal-renovar-poliza')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" style="background-color: #059669;"
+                        id="btn-do-renovar">
+                        Confirmar y Generar Renovación
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL: AGREGAR RECIBO EXTRA A LA PÓLIZA -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-recibo-manual">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Agregar Recibo / Cuota a la Póliza
+                </h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-recibo-manual')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-recibo-manual" onsubmit="handleGuardarReciboManual(event)">
+                <input type="hidden" id="manual-poliza-id" name="poliza_id" value="">
+                <div class="modal-body">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="manual-numero-recibo">Serie / No. Recibo <span class="req">*</span></label>
+                            <input type="text" id="manual-numero-recibo" name="numero_recibo" class="form-control"
+                                placeholder="Ej. 13/12 o Extra 1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="manual-monto">Monto a Pagar ($ MXN) <span class="req">*</span></label>
+                            <input type="number" step="0.01" id="manual-monto" name="monto" class="form-control"
+                                placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="manual-inicio-vigencia">Inicio Vigencia Cuota <span class="req">*</span></label>
+                            <input type="date" id="manual-inicio-vigencia" name="fecha_inicio_recibo"
+                                class="form-control" required onchange="autoCalculateManualLimite()">
+                        </div>
+                        <div class="form-group">
+                            <label for="manual-limite-pago">Fecha Límite de Pago <span class="req">*</span></label>
+                            <input type="date" id="manual-limite-pago" name="fecha_limite_pago" class="form-control"
+                                required>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="manual-notas">Comentarios / Notas</label>
+                        <input type="text" id="manual-notas" name="notas" class="form-control"
+                            placeholder="Ej. Cuota complementaria, endoso, etc.">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action"
+                        onclick="closeModal('modal-recibo-manual')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-save-manual-recibo">
+                        Guardar Recibo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="modal-backdrop" id="modal-preview-doc">
+        <div class="modal-dialog modal-lg" style="height: 85vh;">
+            <div class="modal-header">
+                <h3 id="preview-doc-title">Visualizar Documento</h3>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <a href="#" id="preview-download-link" class="btn-secondary-action"
+                        style="padding: 4px 10px; font-size: 0.8rem;" download target="_blank">
+                        Descargar
+                    </a>
+                    <button class="modal-close-btn" onclick="closeModal('modal-preview-doc')"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div class="modal-body"
+                style="padding: 0; display: flex; align-items: center; justify-content: center; background: #0f172a; overflow: hidden;"
+                id="preview-doc-body">
+                
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- ============================================================ -->
+    <!-- MODAL: NUEVA TAREA / EVENTO EN CALENDARIO -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-tarea">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modal-tarea-title">Nueva Tarea</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-tarea')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-tarea" onsubmit="handleSaveTarea(event)">
+                <input type="hidden" id="tarea-id" name="id" value="">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="tarea-titulo">Título de la tarea <span class="req">*</span></label>
+                        <input type="text" id="tarea-titulo" name="titulo" class="form-control"
+                            placeholder="Ej. Llamar para entrega de póliza, enviar cotización..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tarea-cliente-id">Contratante / Cliente</label>
+                        <select id="tarea-cliente-id" name="cliente_id" class="form-control">
+                            <option value="">-- Sin vincular a cliente específico --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="tarea-fecha">Fecha <span class="req">*</span></label>
+                            <input type="date" id="tarea-fecha" name="fecha" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tarea-hora">Hora (opcional)</label>
+                            <input type="time" id="tarea-hora" name="hora" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="tarea-notas">Notas o detalles adicionales</label>
+                        <textarea id="tarea-notas" name="notas" class="form-control" rows="3"
+                            placeholder="Observaciones, acuerdos o recordatorios..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action" onclick="closeModal('modal-tarea')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-save-tarea">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: INVITAR COLABORADOR AL EQUIPO / CRM -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-invitar-miembro">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3>Invitar a mi Equipo</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-invitar-miembro')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-invitar-miembro" onsubmit="handleSendInvitacion(event)">
+                <div class="modal-body">
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="invitar-nombre">Nombre Completo <span class="req">*</span></label>
+                            <input type="text" id="invitar-nombre" name="nombre" class="form-control"
+                                placeholder="Ej. Mariana Gómez Torres" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="invitar-equipo-id">Área / Equipo <span class="req">*</span></label>
+                            <select id="invitar-equipo-id" name="equipo_id" class="form-control" required>
+                                <!-- Se llena dinámicamente -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="invitar-email">Correo Electrónico <span class="req">*</span></label>
+                            <input type="email" id="invitar-email" name="email" class="form-control"
+                                placeholder="mariana@correo.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="invitar-telefono">Teléfono / WhatsApp</label>
+                            <input type="tel" id="invitar-telefono" name="telefono" class="form-control"
+                                placeholder="55 1234 5678">
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="invitar-rol">Rol en el CRM</label>
+                            <select id="invitar-rol" name="rol" class="form-control">
+                                <option value="agente">Asesor / Agente (Gestión de Cartera)</option>
+                                <option value="admin">Administrador (Control Total)</option>
+                                <option value="auditor">Auditor (Solo Lectura)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="invitar-estado">Estado</label>
+                            <select id="invitar-estado" name="estado" class="form-control">
+                                <option value="activo">Activo de Inmediato</option>
+                                <option value="pendiente">Invitación Pendiente</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action" onclick="closeModal('modal-invitar-miembro')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-submit-invitar">Invitar Colaborador</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: GESTIÓN DE EQUIPO DE TRABAJO -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-equipo">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modal-equipo-title">Crear Nuevo Equipo</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-equipo')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-equipo" onsubmit="handleSaveEquipo(event)">
+                <input type="hidden" id="equipo-id" name="id" value="">
+                <div class="modal-body">
+                    <div class="form-group">
+                            <label for="equipo-nombre">Nombre del Área / Equipo <span class="req">*</span></label>
+                        <input type="text" id="equipo-nombre" name="nombre" class="form-control" list="areas-sugeridas"
+                            placeholder="Ej. Cobranza, Recursos Humanos, Siniestros..." required>
+                        <datalist id="areas-sugeridas">
+                            <option value="Cobranza"></option>
+                            <option value="Recursos Humanos"></option>
+                            <option value="Ventas / Comercial"></option>
+                            <option value="Siniestros"></option>
+                            <option value="Emisión de Pólizas"></option>
+                            <option value="Atención a Clientes"></option>
+                            <option value="Administración y Finanzas"></option>
+                            <option value="Sistemas"></option>
+                            <option value="Dirección"></option>
+                        </datalist>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="equipo-descripcion">Descripción / Propósito</label>
+                        <textarea id="equipo-descripcion" name="descripcion" class="form-control" rows="2"
+                            placeholder="Ej. Responsable de prospección y emisión de pólizas de autos y vida..."></textarea>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="equipo-color">Color Distintivo</label>
+                            <select id="equipo-color" name="color" class="form-control">
+                                <option value="#10b981">Verde Esmeralda (#10b981)</option>
+                                <option value="#0284c7">Azul Cobalto (#0284c7)</option>
+                                <option value="#8b5cf6">Morado (#8b5cf6)</option>
+                                <option value="#f59e0b">Ámbar / Naranja (#f59e0b)</option>
+                                <option value="#ec4899">Rosa Magenta (#ec4899)</option>
+                                <option value="#64748b">Gris Pizarra (#64748b)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="equipo-compartir">Compartir Cartera</label>
+                            <select id="equipo-compartir" name="compartir_cartera" class="form-control">
+                                <option value="empresa">Toda la Empresa (Recomendado)</option>
+                                <option value="equipo">Solo este Equipo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="equipo-lider-nombre">Nombre del Líder de Equipo</label>
+                            <input type="text" id="equipo-lider-nombre" name="lider_nombre" class="form-control"
+                                placeholder="Ej. Valeria Pacheco">
+                        </div>
+                        <div class="form-group">
+                            <label for="equipo-lider-email">Correo del Líder</label>
+                            <input type="email" id="equipo-lider-email" name="lider_email" class="form-control"
+                                placeholder="valeria@empresa.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Módulos Habilitados para este Equipo</label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 6px; font-size: 0.85rem;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="permisos_modulos[]" value="dashboard" checked> Dashboard
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="permisos_modulos[]" value="polizas" checked> Pólizas
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="permisos_modulos[]" value="cobranza" checked> Cobranza
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="permisos_modulos[]" value="clientes" checked> Clientes
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="permisos_modulos[]" value="calendario" checked> Calendario
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer;">
+                                <input type="checkbox" name="permisos_modulos[]" value="documentos" checked> Documentos
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action" onclick="closeModal('modal-equipo')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-save-equipo">
+                        Guardar Equipo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MODAL: CONTACTO DE APOYO -->
+    <!-- ============================================================ -->
+    <div class="modal-backdrop" id="modal-contacto">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3 id="modal-contacto-title">Agregar Contacto de Apoyo</h3>
+                <button class="modal-close-btn" onclick="closeModal('modal-contacto')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-contacto" onsubmit="handleSaveContacto(event)">
+                <input type="hidden" id="contacto-id" name="id" value="">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="contacto-nombre">Nombre completo <span class="req">*</span></label>
+                        <input type="text" id="contacto-nombre" name="nombre" class="form-control"
+                            placeholder="Ej. Laura Méndez" required>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="contacto-email">Correo electrónico</label>
+                            <input type="email" id="contacto-email" name="email" class="form-control"
+                                placeholder="laura@aseguradora.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto-telefono">Teléfono / WhatsApp</label>
+                            <input type="tel" id="contacto-telefono" name="telefono" class="form-control"
+                                placeholder="55 1234 5678">
+                        </div>
+                    </div>
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="contacto-aseguradora">Aseguradora con la que nos apoya</label>
+                            <input type="text" id="contacto-aseguradora" name="aseguradora" class="form-control"
+                                list="aseguradoras-sugeridas" placeholder="Ej. GNP, AXA, Qualitas...">
+                            <datalist id="aseguradoras-sugeridas">
+                                <option value="GNP"></option>
+                                <option value="AXA"></option>
+                                <option value="Qualitas"></option>
+                                <option value="Seguros Monterrey"></option>
+                                <option value="Allianz"></option>
+                                <option value="Mapfre"></option>
+                                <option value="Chubb"></option>
+                                <option value="HDI"></option>
+                                <option value="Banorte"></option>
+                                <option value="Zurich"></option>
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <label for="contacto-area">Área a la que corresponde</label>
+                            <input type="text" id="contacto-area" name="area" class="form-control"
+                                list="areas-contacto-sugeridas" placeholder="Ej. Cobranza, Siniestros...">
+                            <datalist id="areas-contacto-sugeridas">
+                                <option value="Cobranza"></option>
+                                <option value="Siniestros"></option>
+                                <option value="Emisión de Pólizas"></option>
+                                <option value="Suscripción"></option>
+                                <option value="Atención a Agentes"></option>
+                                <option value="Comercial"></option>
+                                <option value="Recursos Humanos"></option>
+                                <option value="Administración"></option>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="contacto-notas">Notas</label>
+                        <textarea id="contacto-notas" name="notas" class="form-control" rows="2"
+                            placeholder="Ej. Atiende ramo Autos, horario de 9 a 6..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary-action" onclick="closeModal('modal-contacto')">Cancelar</button>
+                    <button type="submit" class="btn-primary-action" id="btn-save-contacto">Guardar Contacto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

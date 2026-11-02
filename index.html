@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Núcleo CRM</title>
+    <meta name="description"
+        content="Plataforma de gestión de clientes Núcleo CRM. Inicia sesión o crea tu cuenta para potenciar tu negocio.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <main class="app-container" id="auth-app">
+
+        <section class="brand-showroom">
+            <div class="showroom-overlay"></div>
+            <div class="showroom-header-bar">
+                <div class="brand-hero-logo">
+                    <img src="assets/logo.png" alt="Núcleo Logo" class="showroom-logo-img">
+                </div>
+            </div>
+            <div class="showroom-hero-content">
+                <h1 class="brand-title">Organiza y conecta con tus clientes.</h1>
+            </div>
+        </section>
+
+        <section class="auth-box-wrapper">
+            <div class="auth-card">
+
+                <div class="auth-header">
+                    <div class="auth-tabs" role="tablist">
+                        <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">
+                            Iniciar Sesión
+                        </button>
+                        <button class="tab-btn" id="tab-register" onclick="switchTab('register')">
+                            Registrarse
+                        </button>
+                    </div>
+                </div>
+
+                <div class="auth-view active" id="login-view">
+                    <div class="view-header">
+                        <h2>¿Ya tienes una cuenta?</h2>
+                        <p>Ingresa tus credenciales.</p>
+                    </div>
+
+                    <form id="login-form" onsubmit="handleLogin(event)" novalidate>
+                        <div class="form-group">
+                            <label for="login-email">Correo Electrónico</label>
+                            <div class="input-wrapper">
+                                <i class="input-icon fa-regular fa-envelope"></i>
+                                <input type="email" id="login-email" placeholder="nombre@correo.com" required
+                                    autocomplete="email">
+                            </div>
+                            <span class="error-msg" id="login-email-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="label-row">
+                                <label for="login-password">Contraseña</label>
+                                <a href="#" class="forgot-link" onclick="openForgotModal(event)">¿Olvidaste tu
+                                    contraseña?</a>
+                            </div>
+                            <div class="input-wrapper">
+                                <i class="input-icon fa-solid fa-lock"></i>
+                                <input type="password" id="login-password" placeholder="********" required
+                                    autocomplete="current-password">
+                                <button type="button" class="toggle-password"
+                                    onclick="togglePasswordVisibility('login-password', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg" id="login-password-error"></span>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="remember-me">
+                                <span class="checkmark"></span>
+                                Recordar mi sesión
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="btn-login-submit">
+                            <span>Acceder</span>
+                            <div class="spinner" id="login-spinner"></div>
+                        </button>
+
+                        <p class="auth-footer-text">
+                            ¿Aún no tienes una cuenta?
+                            <a href="#" onclick="switchTab('register'); return false;">Créala aquí</a>.
+                        </p>
+                    </form>
+                </div>
+
+                <div class="auth-view" id="register-view">
+                    <div class="view-header">
+                        <h2>Crea tu cuenta con Núcleo</h2>
+                    </div>
+
+                    <form id="register-form" onsubmit="handleRegister(event)" novalidate>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reg-fullname">Nombre Completo</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="reg-fullname" placeholder="Melissa Ramon" required
+                                        autocomplete="name">
+                                </div>
+                                <span class="error-msg" id="reg-fullname-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reg-company">Empresa / Negocio</label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="reg-company" placeholder="Mi Empresa" required>
+                                </div>
+                                <span class="error-msg" id="reg-company-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-email">Correo Electrónico</label>
+                            <div class="input-wrapper">
+                                <i class="input-icon fa-regular fa-envelope"></i>
+                                <input type="email" id="reg-email" placeholder="m360ei@gmail.com" required
+                                    autocomplete="email">
+                            </div>
+                            <span class="error-msg" id="reg-email-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-password">Contraseña Segura</label>
+                            <div class="input-wrapper">
+                                <i class="input-icon fa-solid fa-lock"></i>
+                                <input type="password" id="reg-password" placeholder="Mínimo 8 caracteres" required
+                                    oninput="evaluatePasswordStrength(this.value)">
+                                <button type="button" class="toggle-password"
+                                    onclick="togglePasswordVisibility('reg-password', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+
+                            <div class="strength-meter-wrapper" id="strength-container">
+                                <div class="strength-bars">
+                                    <div class="bar" id="bar-1"></div>
+                                    <div class="bar" id="bar-2"></div>
+                                    <div class="bar" id="bar-3"></div>
+                                    <div class="bar" id="bar-4"></div>
+                                </div>
+                                <span class="strength-label" id="strength-text">Escribe una contraseña</span>
+                            </div>
+                            <span class="error-msg" id="reg-password-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-confirm-password">Confirmar Contraseña</label>
+                            <div class="input-wrapper">
+                                <i class="input-icon fa-solid fa-lock"></i>
+                                <input type="password" id="reg-confirm-password" placeholder="Repite tu contraseña"
+                                    required autocomplete="new-password">
+                                <button type="button" class="toggle-password"
+                                    onclick="togglePasswordVisibility('reg-confirm-password', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg" id="reg-confirm-password-error"></span>
+                        </div>
+
+                        <div class="form-options">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="reg-terms" required>
+                                <span class="checkmark"></span>
+                                Acepto los <a href="#"
+                                    onclick="showToast('Términos de servicio de Núcleo CRM: Uso exclusivo para administración de pólizas.', 'info'); return false;">Términos de
+                                    Servicio</a> y la <a href="#"
+                                    onclick="showToast('Política de privacidad: Sus datos están protegidos bajo cifrado.', 'info'); return false;">Política de
+                                    Privacidad</a>.
+                            </label>
+                            <span class="error-msg" id="reg-terms-error"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="btn-register-submit">
+                            <span>Crear cuenta gratis</span>
+                            <div class="spinner" id="register-spinner"></div>
+                        </button>
+
+                        <p class="auth-footer-text">
+                            ¿Ya tienes una cuenta registrada?
+                            <a href="#" onclick="switchTab('login'); return false;">Inicia sesión aquí</a>.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>© 2026 Núcleo Inc. Todos los derechos reservados.</p>
+    </footer>
+
+
+    <div class="modal-overlay" id="forgot-modal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeForgotModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <div class="modal-icon-badge">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <h3>Recuperar Contraseña</h3>
+                <p>Ingresa tu correo asociado y te enviaremos las instrucciones de restablecimiento.</p>
+            </div>
+
+            <form onsubmit="handleForgotSubmit(event)">
+                <div class="form-group">
+                    <label for="forgot-email">Correo Electrónico</label>
+                    <div class="input-wrapper">
+                        <i class="input-icon fa-regular fa-envelope"></i>
+                        <input type="email" id="forgot-email" placeholder="tu-correo@empresa.com" required>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeForgotModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar Enlace</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
